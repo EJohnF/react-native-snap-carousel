@@ -134,8 +134,6 @@ export default class Carousel extends Component {
         this._onTouchStart = this._onTouchStart.bind(this);
         this._onTouchRelease = this._onTouchRelease.bind(this);
 
-        this._getKeyExtractor = this._getKeyExtractor.bind(this);
-
         // Native driver for scroll events
         const scrollEventConfig = {
             listener: this._onScroll,
@@ -214,7 +212,7 @@ export default class Carousel extends Component {
 
     componentWillReceiveProps (nextProps) {
         const { interpolators } = this.state;
-        const { firstItem, itemHeight, itemWidth, scrollEnabled, sliderHeight, sliderWidth } = nextProps;
+        const { firstItem, itemHeight, itemWidth, sliderHeight, sliderWidth } = nextProps;
         const itemsLength = this._getCustomDataLength(nextProps);
 
         if (!itemsLength) {
@@ -228,16 +226,10 @@ export default class Carousel extends Component {
         const hasNewSliderHeight = sliderHeight && sliderHeight !== this.props.sliderHeight;
         const hasNewItemWidth = itemWidth && itemWidth !== this.props.itemWidth;
         const hasNewItemHeight = itemHeight && itemHeight !== this.props.itemHeight;
-        const hasNewScrollEnabled = scrollEnabled !== this.props.scrollEnabled;
 
         // Prevent issues with dynamically removed items
         if (nextActiveItem > itemsLength - 1) {
             nextActiveItem = itemsLength - 1;
-        }
-
-        // Handle changing scrollEnabled independent of user -> carousel interaction
-        if (hasNewScrollEnabled) {
-          this._setScrollEnabled(scrollEnabled);
         }
 
         if (interpolators.length !== itemsLength || hasNewSliderWidth ||
@@ -453,7 +445,7 @@ export default class Carousel extends Component {
     _setScrollEnabled (value = true) {
         const { scrollEnabled } = this.props;
 
-        if (!this._scrollComponent || !this._scrollComponent.setNativeProps) {
+        if (scrollEnabled === false || !this._scrollComponent || !this._scrollComponent.setNativeProps) {
             return;
         }
 
@@ -464,7 +456,7 @@ export default class Carousel extends Component {
     }
 
     _getKeyExtractor (item, index) {
-        return this._needsScrollView() ? `scrollview-item-${index}` : `flatlist-item-${index}`;
+        return `flatlist-item-${index}`;
     }
 
     _getScrollOffset (event) {
@@ -1091,7 +1083,6 @@ export default class Carousel extends Component {
             hasParallaxImages,
             itemWidth,
             itemHeight,
-            keyExtractor,
             renderItem,
             sliderHeight,
             sliderWidth,
@@ -1120,7 +1111,7 @@ export default class Carousel extends Component {
         } : undefined;
 
         const specificProps = this._needsScrollView() ? {
-            key: keyExtractor ? keyExtractor(item, index) : this._getKeyExtractor(item, index),
+            key: `scrollview-item-${index}`
         } : {};
 
         return (
@@ -1157,6 +1148,8 @@ export default class Carousel extends Component {
         } : {};
 
         return {
+            snapToInterval: 339,
+            snapToAlignment: 'start',
             decelerationRate: enableMomentum ? 0.9 : 'fast',
             showsHorizontalScrollIndicator: false,
             showsVerticalScrollIndicator: false,
@@ -1165,7 +1158,7 @@ export default class Carousel extends Component {
             directionalLockEnabled: true,
             pinchGestureEnabled: false,
             scrollsToTop: false,
-            removeClippedSubviews: true,
+            removeClippedSubviews: false,
             inverted: this._needsRTLAdaptations(),
             // renderToHardwareTextureAndroid: true,
             ...specificProps
@@ -1197,7 +1190,7 @@ export default class Carousel extends Component {
             contentContainerCustomStyle || {},
             vertical ? {
                 paddingTop: this._getContainerInnerMargin(),
-                paddingBottom: this._getContainerInnerMargin(true)
+                paddingBottom: 300, //this._getContainerInnerMargin(true)
             } : {
                 paddingLeft: this._getContainerInnerMargin(),
                 paddingRight: this._getContainerInnerMargin(true)
