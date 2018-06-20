@@ -11,7 +11,7 @@ import {
     stackAnimatedStyles,
     tinderAnimatedStyles
 } from '../utils/animations';
-
+var shallowEqual = require('fbjs/lib/shallowEqual');
 const IS_IOS = Platform.OS === 'ios';
 
 // Native driver for scroll events
@@ -206,7 +206,8 @@ export default class Carousel extends Component {
         if (this.props.shouldOptimizeUpdates === false) {
             return true;
         } else {
-            return shallowCompare(this, nextProps, nextState);
+            return !shallowEqual(this.props.data, nextProps.data)
+              || !shallowEqual(this.props.fullRender, nextProps.fullRender);
         }
     }
 
