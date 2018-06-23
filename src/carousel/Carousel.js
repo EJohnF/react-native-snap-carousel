@@ -101,7 +101,7 @@ export default class Carousel extends Component {
         super(props);
 
         this.state = {
-            hideCarousel: true,
+            hideCarousel: false,
             interpolators: []
         };
 
@@ -172,6 +172,7 @@ export default class Carousel extends Component {
         if (props.onScrollViewScroll) {
             console.warn('react-native-snap-carousel: Prop `onScrollViewScroll` has been removed. Use `onScroll` instead');
         }
+        this._initPositionsAndInterpolators();
     }
 
     componentDidMount () {
@@ -185,20 +186,20 @@ export default class Carousel extends Component {
             }
         };
 
-        this._initPositionsAndInterpolators();
+
 
         // Without 'requestAnimationFrame' or a `0` timeout, images will randomly not be rendered on Android...
         requestAnimationFrame(() => {
             this._snapToItem(_firstItem, false, false, true, false);
-            this._hackActiveSlideAnimation(_firstItem, 'start', true);
-
-            if (apparitionDelay) {
-                this._apparitionTimeout = setTimeout(() => {
-                    apparitionCallback();
-                }, apparitionDelay);
-            } else {
-                apparitionCallback();
-            }
+            // this._hackActiveSlideAnimation(_firstItem, 'start', true);
+            //
+            // if (apparitionDelay) {
+            //     this._apparitionTimeout = setTimeout(() => {
+            //         apparitionCallback();
+            //     }, apparitionDelay);
+            // } else {
+            //     apparitionCallback();
+            // }
         });
     }
 
@@ -237,7 +238,6 @@ export default class Carousel extends Component {
             hasNewSliderHeight || hasNewItemWidth || hasNewItemHeight) {
             this._activeItem = nextActiveItem;
             this._previousItemsLength = itemsLength;
-
             this._initPositionsAndInterpolators(nextProps);
 
             // Handle scroll issue when dynamically removing items (see #133)
@@ -566,7 +566,7 @@ export default class Carousel extends Component {
             interpolators.push(animatedValue);
         });
 
-        this.setState({ interpolators });
+        this.state = { interpolators };
     }
 
     _getSlideAnimation (index, toValue) {
